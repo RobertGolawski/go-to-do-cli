@@ -77,4 +77,5 @@ func initConfig() {
 			log.Fatalf("Error reading config: %v", err)
 		}
 	}
+	viper.AutomaticEnv()
 }
