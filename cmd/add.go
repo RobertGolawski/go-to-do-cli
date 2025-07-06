@@ -192,10 +192,27 @@ func parseFullDate(day, month, year string) (time.Time, error) {
 	if yearInt, err = strconv.Atoi(year); err != nil {
 		log.Fatalf("Invalid year argument: %v caused error: %v", year, err)
 	}
+
 	fullDate := time.Date(yearInt, time.Month(monthInt), dayInt, 0, 0, 0, 0, time.Local)
 	now := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.Local)
+
 	if fullDate.Before(now) {
-		return time.Date(time.Now().Year(), time.Now().Month(), dayInt, 0, 0, 0, 0, time.Local), nil
+		candidateDateCurrentYear := time.Date(time.Now().Year(), time.Month(monthInt), dayInt, 0, 0, 0, 0, time.Local)
+
+		if candidateDateCurrentYear.Before(now) {
+			candidateDateCurrentMonthCurrentYear := time.Date(time.Now().Year(), time.Now().Month(), dayInt, 0, 0, 0, 0, time.Local)
+
+			if candidateDateCurrentMonthCurrentYear.Before(now) {
+				log.Printf("Provided date %v/%v/%v is in the past, and the day/month combination (%v/%v) has passed for the current year. Setting to %v next month", day, month, year, day, month, day)
+				return candidateDateCurrentMonthCurrentYear.AddDate(0, 1, 0), nil
+			} else {
+				log.Printf("Provided date %v/%v/%v is in the past, but the day (%v) is in the future for the current month (%v) of the current year. Setting to %v/%v/%v", day, month, year, day, time.Now().Month(), day, time.Now().Month(), time.Now().Year())
+				return candidateDateCurrentMonthCurrentYear, nil
+			}
+		} else {
+			log.Printf("Provided year %v is in the past, but the month and day (%v/%v) are in the future for the current year. Setting to %v/%v/%v", year, day, month, day, month, time.Now().Year())
+			return candidateDateCurrentYear, nil
+		}
 	} else if fullDate.After(now) {
 		return fullDate, nil
 	} else {

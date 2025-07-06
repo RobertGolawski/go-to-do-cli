@@ -115,5 +115,4 @@ func validatePath(home, path string) error {
 func init() {
 	rootCmd.AddCommand(initCmd)
 	initCmd.Flags().StringVarP(&filePathFlag, "dir", "d", "", "Custom directory for the todos JSON file")
-
 }
