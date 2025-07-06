@@ -4,15 +4,19 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 
+	"github.com/RobertGolawski/go-to-do-cli/models"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 var cfgFile string
+var list *models.TodoList
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -20,6 +24,39 @@ var rootCmd = &cobra.Command{
 	Short: "A CLI to-do app",
 	Long:  `A test app to get used to cobra, viper, bubbletea and lipgloss used to learn how to build cli apps in Go. Basic functionality is adding a todo, deleting a todo, updating a todo, completing a todo, and view todo.`,
 
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		todoFilePath := viper.GetString("todopath")
+
+		if todoFilePath == "" {
+			log.Println("todo file not found, initialising empty list")
+			list = &models.TodoList{Todos: []models.TodoItem{}, NextID: 0}
+			return nil
+		}
+
+		if _, err := os.Stat(todoFilePath); os.IsNotExist(err) {
+			log.Printf("File at %v does not exist, initialising empty list", todoFilePath)
+			list = &models.TodoList{Todos: []models.TodoItem{}, NextID: 0}
+			return nil
+		}
+
+		data, err := os.ReadFile(todoFilePath)
+		if err != nil {
+			log.Printf("Error when reading file at %v", todoFilePath)
+			return fmt.Errorf("%v", err)
+		}
+
+		if err := json.Unmarshal(data, &list); err != nil {
+			return fmt.Errorf("Failed unmarshalling the contents off the file with error: %v", err)
+		}
+
+		log.Printf("List on load: %v", list)
+
+		return nil
+	},
+
+	PersistentPostRun: func(cmd *cobra.Command, args []string) {
+		log.Println("This ran post lol")
+	},
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
