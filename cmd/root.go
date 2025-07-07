@@ -45,8 +45,15 @@ var rootCmd = &cobra.Command{
 			return fmt.Errorf("%v", err)
 		}
 
-		if err := json.Unmarshal(data, &list); err != nil {
-			return fmt.Errorf("Failed unmarshalling the contents off the file with error: %v", err)
+		log.Printf("this is inside of data: %v ", string(data))
+
+		if len(data) != 0 {
+			if err := json.Unmarshal(data, &list); err != nil {
+				return fmt.Errorf("Failed unmarshalling the contents off the file with error: %v", err)
+			}
+		} else {
+			log.Printf("File was found at %v but contents was empty, initialising new list", todoFilePath)
+			list = &models.TodoList{Todos: []models.TodoItem{}, NextID: 0}
 		}
 
 		log.Printf("List on load: %v", list)
