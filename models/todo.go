@@ -84,7 +84,6 @@ func (tl *TodoList) RemoveTodo(id int) error {
 		if td.ID == id {
 			tl.Todos = slices.Delete(tl.Todos, i, i+1)
 			performed = true
-			log.Printf("This was called and this is the state: %v", tl.Todos)
 		}
 	}
 
