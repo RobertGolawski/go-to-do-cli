@@ -6,15 +6,13 @@ package cmd
 import (
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 	"strings"
 	"time"
 
-	"encoding/json"
 	"github.com/RobertGolawski/go-to-do-cli/models"
+	"github.com/RobertGolawski/go-to-do-cli/shared"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var dueDate string
@@ -54,29 +52,12 @@ var addCmd = &cobra.Command{
 			log.Printf("The date returned: %v", d)
 		}
 
-		// toDo := models.TodoItem{
-		// 	ID:       list.NextID,
-		// 	ToDo:     task,
-		// 	DueDate:  d,
-		// 	Priority: models.Medium,
-		// 	Done:     false,
-		// }
-		//
-		// log.Printf("This todo is ready to be added: %v", toDo)
-		//
-		// list.Todos = append(list.Todos, toDo)
-
 		list.AddTodo(task, d, models.Medium)
 
-		newContent, err := json.MarshalIndent(list, "", "  ")
+		err = shared.Sync(list)
 		if err != nil {
-			log.Printf("Error marshalling list after add: %v", err)
+			log.Printf("Error syncing after adding: %v", err)
 			return
-		}
-
-		err = os.WriteFile(viper.GetString("todopath"), newContent, 0644)
-		if err != nil {
-			log.Printf("Error writing to file after add: %v", err)
 		}
 
 	},

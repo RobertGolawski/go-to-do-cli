@@ -1,6 +1,8 @@
 package models
 
 import (
+	"errors"
+	"fmt"
 	"log"
 	"time"
 )
@@ -54,7 +56,7 @@ func (tl *TodoList) AddTodo(todo string, dueDate time.Time, priority Priority) {
 	tl.NextID++
 }
 
-func (tl *TodoList) MarkDone(id int) {
+func (tl *TodoList) MarkDone(id int) error {
 	performed := false
 
 	for i := range tl.Todos {
@@ -66,9 +68,27 @@ func (tl *TodoList) MarkDone(id int) {
 	}
 
 	if !performed {
-		log.Printf("Todo with ID: %v not found, skipping writing to file", id)
-		return
+		return errors.New(fmt.Sprintf("Todo with ID: %v not found, skipping writing to file", id))
 	}
 
 	log.Println("Updated todo successfully")
+	return nil
+}
+
+func (tl *TodoList) DeleteTodo(id int) error {
+	performed := false
+
+	for i := range tl.Todos {
+		td := tl.Todos[i]
+		if td.ID == id {
+			tl.Todos = append(tl.Todos[:i], tl.Todos[i+1:]...)
+			performed = true
+		}
+	}
+
+	if !performed {
+		return errors.New(fmt.Sprintf("Todo with ID: %v not found, skipping writing to file", id))
+	}
+
+	return nil
 }

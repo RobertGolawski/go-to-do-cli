@@ -4,14 +4,15 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"encoding/json"
+	// "encoding/json"
 	"fmt"
 	"log"
-	"os"
+	// "os"
 	"strconv"
 
+	"github.com/RobertGolawski/go-to-do-cli/shared"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	// "github.com/spf13/viper"
 )
 
 // markCmd represents the mark command
@@ -36,20 +37,27 @@ to quickly create a Cobra application.`,
 			return
 		}
 
-		log.Printf("Got here! %v", parsedID)
-
-		list.MarkDone(parsedID)
-
-		newContent, err := json.MarshalIndent(list, "", "  ")
+		err = list.MarkDone(parsedID)
 		if err != nil {
-			log.Printf("Error marshalling list after mark: %v", err)
+			log.Printf("%v", err)
 			return
 		}
-		err = os.WriteFile(viper.GetString("todopath"), newContent, 0644)
-		if err != nil {
-			log.Printf("Error writing to file after mark: %v", err)
-		}
 
+		// newContent, err := json.MarshalIndent(list, "", "  ")
+		// if err != nil {
+		// 	log.Printf("Error marshalling list after mark: %v", err)
+		// 	return
+		// }
+		// err = os.WriteFile(viper.GetString("todopath"), newContent, 0644)
+		// if err != nil {
+		// 	log.Printf("Error writing to file after mark: %v", err)
+		// }
+
+		err = shared.Sync(list)
+		if err != nil {
+			log.Printf("Error with sync in mark: %v", err)
+			return
+		}
 	},
 }
 
