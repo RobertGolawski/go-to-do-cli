@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"slices"
 	"time"
 )
 
@@ -75,14 +76,15 @@ func (tl *TodoList) MarkDone(id int) error {
 	return nil
 }
 
-func (tl *TodoList) DeleteTodo(id int) error {
+func (tl *TodoList) RemoveTodo(id int) error {
 	performed := false
 
 	for i := range tl.Todos {
 		td := tl.Todos[i]
 		if td.ID == id {
-			tl.Todos = append(tl.Todos[:i], tl.Todos[i+1:]...)
+			tl.Todos = slices.Delete(tl.Todos, i, i+1)
 			performed = true
+			log.Printf("This was called and this is the state: %v", tl.Todos)
 		}
 	}
 
