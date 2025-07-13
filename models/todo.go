@@ -1,6 +1,7 @@
 package models
 
 import (
+	"log"
 	"time"
 )
 
@@ -37,8 +38,8 @@ type TodoItem struct {
 }
 
 type TodoList struct {
-	Todos  []TodoItem `json:"items"`
-	NextID int        `json:"next_id"`
+	Todos  []*TodoItem `json:"items"`
+	NextID int         `json:"next_id"`
 }
 
 func (tl *TodoList) AddTodo(todo string, dueDate time.Time, priority Priority) {
@@ -49,6 +50,25 @@ func (tl *TodoList) AddTodo(todo string, dueDate time.Time, priority Priority) {
 		Priority: priority,
 		Done:     false,
 	}
-	tl.Todos = append(tl.Todos, t)
+	tl.Todos = append(tl.Todos, &t)
 	tl.NextID++
+}
+
+func (tl *TodoList) MarkDone(id int) {
+	performed := false
+
+	for i := range tl.Todos {
+		td := tl.Todos[i]
+		if td.ID == id {
+			td.Done = true
+			performed = true
+		}
+	}
+
+	if !performed {
+		log.Printf("Todo with ID: %v not found, skipping writing to file", id)
+		return
+	}
+
+	log.Println("Updated todo successfully")
 }

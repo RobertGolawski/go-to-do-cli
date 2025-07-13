@@ -29,13 +29,13 @@ var rootCmd = &cobra.Command{
 
 		if todoFilePath == "" {
 			log.Println("todo file not found, initialising empty list")
-			list = &models.TodoList{Todos: []models.TodoItem{}, NextID: 0}
+			list = &models.TodoList{Todos: []*models.TodoItem{}, NextID: 0}
 			return nil
 		}
 
 		if _, err := os.Stat(todoFilePath); os.IsNotExist(err) {
 			log.Printf("File at %v does not exist, initialising empty list", todoFilePath)
-			list = &models.TodoList{Todos: []models.TodoItem{}, NextID: 0}
+			list = &models.TodoList{Todos: []*models.TodoItem{}, NextID: 0}
 			return nil
 		}
 
@@ -53,7 +53,7 @@ var rootCmd = &cobra.Command{
 			}
 		} else {
 			log.Printf("File was found at %v but contents was empty, initialising new list", todoFilePath)
-			list = &models.TodoList{Todos: []models.TodoItem{}, NextID: 0}
+			list = &models.TodoList{Todos: []*models.TodoItem{}, NextID: 0}
 		}
 
 		log.Printf("List on load: %v", list)

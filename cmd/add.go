@@ -6,12 +6,15 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 
+	"encoding/json"
 	"github.com/RobertGolawski/go-to-do-cli/models"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var dueDate string
@@ -30,14 +33,9 @@ var daysOfTheWeek = map[string]time.Weekday{
 // addCmd represents the add command
 var addCmd = &cobra.Command{
 	Use:   "add",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Args: cobra.ExactArgs(1),
+	Short: "Add todo to file",
+	Long:  `Add todo to file. Supports optional params date and priority. Date can be given as "Today", "Tomorrow", a day of the week (eg. "Wednesday") - this will add the due date to the next occurrance of that day, or a date in format dd-mm?-yy? with the month and year being optiona. `,
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Printf("add called with args: %v", args)
 
@@ -56,15 +54,30 @@ to quickly create a Cobra application.`,
 			log.Printf("The date returned: %v", d)
 		}
 
-		toDo := models.TodoItem{
-			ID:       list.NextID,
-			ToDo:     task,
-			DueDate:  d,
-			Priority: models.Medium,
-			Done:     false,
+		// toDo := models.TodoItem{
+		// 	ID:       list.NextID,
+		// 	ToDo:     task,
+		// 	DueDate:  d,
+		// 	Priority: models.Medium,
+		// 	Done:     false,
+		// }
+		//
+		// log.Printf("This todo is ready to be added: %v", toDo)
+		//
+		// list.Todos = append(list.Todos, toDo)
+
+		list.AddTodo(task, d, models.Medium)
+
+		newContent, err := json.MarshalIndent(list, "", "  ")
+		if err != nil {
+			log.Printf("Error marshalling list after add: %v", err)
+			return
 		}
 
-		log.Printf("This todo is ready to be added: %v", toDo)
+		err = os.WriteFile(viper.GetString("todopath"), newContent, 0644)
+		if err != nil {
+			log.Printf("Error writing to file after add: %v", err)
+		}
 
 	},
 }
