@@ -121,5 +121,7 @@ func initConfig() {
 			log.Fatalf("Error reading config: %v", err)
 		}
 	}
+
+	viper.SetDefault("piip", "http://192.168.0.41:8081/")
 	viper.AutomaticEnv()
 }
