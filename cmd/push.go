@@ -19,14 +19,13 @@ var pushCmd = &cobra.Command{
 	Short: "Push to save remotely",
 	Long:  `Push to a remote api to save on the api host system`,
 	Run: func(cmd *cobra.Command, args []string) {
-		sshIP := viper.GetString("piip")
+		piIP := viper.GetString("piip")
 		todopath := viper.GetString("todopath")
 
-		if sshIP == "" || todopath == "" {
-			log.Printf("one of ip :%v or todopath: %v is empty", sshIP, todopath)
+		if piIP == "" || todopath == "" {
+			log.Printf("one of ip :%v or todopath: %v is empty", piIP, todopath)
 			return
 		}
-		fmt.Println("push called")
 
 		if _, err := os.Stat(todopath); err != nil {
 			if os.IsNotExist(err) {
@@ -43,7 +42,7 @@ var pushCmd = &cobra.Command{
 
 		defer file.Close()
 
-		req, err := http.NewRequest("POST", fmt.Sprintf("%vpush", sshIP), file)
+		req, err := http.NewRequest("POST", fmt.Sprintf("%vpush", piIP), file)
 
 		req.Header.Set("Content-Type", "application/json")
 
